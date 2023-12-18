@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id             String           @id @unique @default(uuid())
+  number         Int
+  hospital       Hospital         @relation(fields: [hospitalId], references: [id])
+  hospitalId     String
+  surgeryRequest SurgeryRequest[]
+
+  @@map("rooms")
+}
+
+model Hospital {
+  id              String           @id @unique @default(uuid())
+  name            String
+  rooms           Room[]
+  surgeryRequests SurgeryRequest[]
+
+  @@map("hospitals")
+}
+
+model Procedure {
+  id              String           @id @unique @default(uuid())
+  name            String
+  surgeryRequests SurgeryRequest[]
+
+  @@map("procedures")
+}
+
+model SurgeryRequest {
+  id                  String    @id @unique @default(uuid())
+  room                Room      @relation(fields: [roomId], references: [id])
+  roomId              String
+  hospital            Hospital  @relation(fields: [hospitalId], references: [id])
+  hospitalId          String
+  procedure           Procedure @relation(fields: [procedureId], references: [id])
+  procedureId         String
+  doctor              String
+  surgeryDate         DateTime
+  createdAt           DateTime  @default(now())
+  generalObservations String    @db.VarChar(100)
+
+  @@map("surgeryRequests")
+}
